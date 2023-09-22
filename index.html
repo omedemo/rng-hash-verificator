@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RNG Hash Verificator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+<div>
+    <form id="form">
+        <label>
+            Asset:
+            <select name="asset" id="asset">
+                <option value="56">ASSET1</option>
+                <option value="57">ASSET2</option>
+                <option value="58">ASSET3</option>
+                <option value="59">ASSET4</option>
+                <option value="60">ASSET5</option>
+                <option value="61">ASSET5</option>
+            </select>
+        </label>
+        <br><br>
+        <label>Hash: <input type="text" name="hash" id="hash"/></label>
+        <br><br>
+        <label>Quote: <input type="text" name="quote" id="quote"/></label>
+        <br><br>
+        <label>Amount: <input type="number" name="amount" id="amount" value="10" max="1000"/></label>
+        <br><br>
+        <button id="button" type="submit">Submit</button>
+    </form>
+    <table>
+        <thead>
+        <tr>
+            <th>Hash</th>
+            <th>Quote</th>
+        </tr>
+        </thead>
+        <tbody id="table">
+        </tbody>
+    </table>
+
+    <script type="text/javascript">
+        const assets = [
+            {
+                id: 56,
+                y: 200,
+                start_quote: 2124.7894,
+                precision: 5,
+                chance_of_quote_change: 0.45,
+            },
+            {
+                id: 57,
+                y: 300,
+                start_quote: 2124.7894,
+                precision: 5,
+                chance_of_quote_change: 0.3,
+            },
+            {
+                id: 58,
+                y: 18,
+                start_quote: 183.435,
+                precision: 4,
+                chance_of_quote_change: 0.25,
+            },
+            {
+                id: 59,
+                y: 27,
+                start_quote: 183.435,
+                precision: 4,
+                chance_of_quote_change: 0.15,
+            },
+            {
+                id: 60,
+                y: 10,
+                start_quote: 1.08826,
+                precision: 6,
+                chance_of_quote_change: 0.2,
+            },
+            {
+                id: 61,
+                y: 5,
+                start_quote: 1.08826,
+                precision: 6,
+                chance_of_quote_change: 0.55,
+            },
+        ];
+
+        const form = document.getElementById("form");
+        const button = document.getElementById("button");
+        const table = document.getElementById("table");
+
+        const assetField = document.getElementById("asset");
+        const hashInput = document.getElementById("hash");
+        const quoteInput = document.getElementById("quote");
+        const amountInput = document.getElementById("amount");
+
+        function resolve_hash(hash) {
+            let result = hash.substring(0, 13);
+            result = parseInt(result, 16);
+            result = result / 4503599627370496;
+            return result;
+        }
+
+        form.addEventListener("submit", event => {
+            table.innerHTML = ""
+            button.setAttribute('disabled', 'disabled')
+
+            const config = assets.find(asset => asset.id === parseInt(assetField.value));
+
+            const y = config.y;
+            const precision = config.precision;
+            const chance = config.chance_of_quote_change;
+            const startQuote = config.start_quote;
+
+            let data = {};
+
+            let prevHash = null;
+            let k = 0;
+            for (let i = 0; i < amountInput.value * 2; i++) {
+                let hash = String(prevHash ? CryptoJS.SHA256(String(prevHash)) : hashInput.value);
+
+                if (!data.hasOwnProperty(k)) {
+                    data[k] = {};
+                }
+
+                if (i % 2 === 0) {
+                    // Even is quote offset
+                    data[k].hash2 = hash
+                    data[k].offset = Math.ceil(resolve_hash(hash) * (y * 2 + 1))
+                } else {
+                    // Odd is chance of quote change
+                    data[k].hash1 = hash
+                    data[k].chance = resolve_hash(hash)
+                    k++
+                }
+
+                prevHash = hash;
+            }
+
+            let currentQuote = quoteInput.value;
+            for (let i = 0; i < k; i++) {
+                let row = document.createElement("tr")
+                let c1 = document.createElement("td")
+                let c2 = document.createElement("td")
+                // c1.innerText = data[i].hash1 + ":" + data[i].chance + "\n" + data[i].hash2 + ":" + data[i].offset
+                c1.innerText = data[i].hash1 + "\n" + data[i].hash2
+                c2.innerText = currentQuote
+
+                row.appendChild(c1)
+                row.appendChild(c2)
+
+                table.appendChild(row)
+
+                if (data[i].chance < chance) {
+                    const delta = data[i].offset / Math.pow(10, precision - 1) - 2 * y / Math.pow(10, precision - 1) / 2;
+                    let calculatedQuote = Math.round((currentQuote - delta / 2) * Math.pow(10, precision)) / Math.pow(10, precision);
+                    if (calculatedQuote >= startQuote * 0.8 && calculatedQuote <= startQuote * 1.2) {
+                        currentQuote = calculatedQuote;
+                    }
+                }
+            }
+
+            button.removeAttribute('disabled')
+
+            event.preventDefault();
+        });
+    </script>
+</div>
+</body>
+</html>
