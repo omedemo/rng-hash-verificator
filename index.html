@@ -11,12 +11,12 @@
         <label>
             Asset:
             <select name="asset" id="asset">
-                <option value="56">ASSET1</option>
-                <option value="57">ASSET2</option>
-                <option value="58">ASSET3</option>
-                <option value="59">ASSET4</option>
-                <option value="60">ASSET5</option>
-                <option value="61">ASSET5</option>
+                <option value="56">RNG1</option>
+                <option value="57">RNG2</option>
+                <option value="58">RNG3</option>
+                <option value="59">RNG4</option>
+                <option value="60">RNG5</option>
+                <option value="61">RNG6</option>
             </select>
         </label>
         <br><br>
@@ -126,7 +126,7 @@
                 if (i % 2 === 0) {
                     // Even is quote offset
                     data[k].hash2 = hash
-                    data[k].offset = Math.ceil(resolve_hash(hash) * (y * 2 + 1))
+                    data[k].offset = Math.floor(resolve_hash(hash) * (y * 2 + 1))
                 } else {
                     // Odd is chance of quote change
                     data[k].hash1 = hash
