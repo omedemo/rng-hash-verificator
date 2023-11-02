@@ -1,170 +1,315 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>RNG Hash Verificator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <meta charset="UTF-8">
+  <title>RNG Hash Verificator</title>
+  <script crossorigin="anonymous"
+          integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA=="
+          referrerpolicy="no-referrer"
+          src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <style>
+    *,
+    *:after,
+    *:before {
+      box-sizing: border-box;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      background: #fff;
+      -webkit-text-size-adjust: 100%;
+      -webkit-font-smoothing: subpixel-antialiased;
+    }
+
+    .page {
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .form {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    input, select {
+      display: block;
+      box-shadow: none;
+      border: 1px solid #ccd1d7;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 16px;
+      line-height: 1;
+      width: 100%;
+    }
+
+    button {
+      background-color: #00c21f;
+      border: none;
+      border-radius: 5px;
+      padding: 15px;
+      color: #fff;
+      box-shadow: none;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    table {
+      table-layout: fixed;
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 14px;
+      line-height: 1.42;
+      border-radius: 6px;
+      display: none;
+    }
+
+    table.--visible {
+      display: table;
+    }
+
+    table th {
+      font-weight: 600;
+    }
+
+    table th,
+    table td {
+
+    }
+
+    table th {
+      border-bottom: 2px solid #dee2e6;
+      padding: 10px;
+    }
+
+    table td {
+      border-top: 1px solid #dee2e6;
+      padding: 10px;
+    }
+
+    table th:nth-child(1),
+    table td:nth-child(1) {
+      text-align: left;
+    }
+
+    table th:nth-child(2),
+    table td:nth-child(2) {
+      text-align: right;
+    }
+
+    table p {
+      font-size: 14px
+    }
+
+    table p + p {
+      margin-top: 10px;
+    }
+
+    table
+  </style>
 </head>
 <body>
-<div>
-    <form id="form">
-        <label>
-            Asset:
-            <select name="asset" id="asset">
-                <option value="56">RNG1</option>
-                <option value="57">RNG2</option>
-                <option value="58">RNG3</option>
-                <option value="59">RNG4</option>
-                <option value="60">RNG5</option>
-                <option value="61">RNG6</option>
-            </select>
-        </label>
-        <br><br>
-        <label>Hash: <input type="text" name="hash" id="hash"/></label>
-        <br><br>
-        <label>Quote: <input type="text" name="quote" id="quote"/></label>
-        <br><br>
-        <label>Amount: <input type="number" name="amount" id="amount" value="10" max="1000"/></label>
-        <br><br>
-        <button id="button" type="submit">Submit</button>
-    </form>
-    <table>
-        <thead>
-        <tr>
-            <th>Hash</th>
-            <th>Quote</th>
-        </tr>
-        </thead>
-        <tbody id="table">
-        </tbody>
-    </table>
+<div class="page">
+  <form class="form" id="form">
+    <div class="form-field">
+      <label for="">Asset</label>
+      <select id="asset" name="asset">
+        <option value="56">RNG1</option>
+        <option value="57">RNG2</option>
+        <option value="58">RNG3</option>
+        <option value="59">RNG4</option>
+        <option value="60">RNG5</option>
+        <option value="61">RNG6</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Hash</label>
+      <input id="hash" name="hash" type="text"/>
+    </div>
 
-    <script type="text/javascript">
-        const assets = [
-            {
-                id: 56,
-                y: 200,
-                start_quote: 2124.7894,
-                precision: 5,
-                chance_of_quote_change: 0.45,
-            },
-            {
-                id: 57,
-                y: 300,
-                start_quote: 2124.7894,
-                precision: 5,
-                chance_of_quote_change: 0.3,
-            },
-            {
-                id: 58,
-                y: 18,
-                start_quote: 183.435,
-                precision: 4,
-                chance_of_quote_change: 0.25,
-            },
-            {
-                id: 59,
-                y: 27,
-                start_quote: 183.435,
-                precision: 4,
-                chance_of_quote_change: 0.15,
-            },
-            {
-                id: 60,
-                y: 10,
-                start_quote: 1.08826,
-                precision: 6,
-                chance_of_quote_change: 0.2,
-            },
-            {
-                id: 61,
-                y: 5,
-                start_quote: 1.08826,
-                precision: 6,
-                chance_of_quote_change: 0.55,
-            },
-        ];
+    <div class="form-field">
+      <label>Quote</label>
+      <input id="quote" name="quote" type="text"/>
+    </div>
 
-        const form = document.getElementById("form");
-        const button = document.getElementById("button");
-        const table = document.getElementById("table");
+    <div class="form-field">
+      <label>Amount</label>
+      <input id="amount" max="1000" name="amount" type="number" value="10"/>
+    </div>
 
-        const assetField = document.getElementById("asset");
-        const hashInput = document.getElementById("hash");
-        const quoteInput = document.getElementById("quote");
-        const amountInput = document.getElementById("amount");
+    <button id="button" type="submit">Submit</button>
+  </form>
+  <table>
+    <thead>
+    <tr>
+      <th>Hash</th>
+      <th>Quote</th>
+    </tr>
+    </thead>
+    <tbody id="table">
+    </tbody>
+  </table>
 
-        function resolve_hash(hash) {
-            let result = hash.substring(0, 13);
-            result = parseInt(result, 16);
-            result = result / 4503599627370496;
-            return result;
+  <script type="text/javascript">
+    const assets = [
+      {
+        id: 56,
+        y: 200,
+        start_quote: 2124.7894,
+        precision: 5,
+        chance_of_quote_change: 0.45,
+      },
+      {
+        id: 57,
+        y: 300,
+        start_quote: 2124.7894,
+        precision: 5,
+        chance_of_quote_change: 0.3,
+      },
+      {
+        id: 58,
+        y: 18,
+        start_quote: 183.435,
+        precision: 4,
+        chance_of_quote_change: 0.25,
+      },
+      {
+        id: 59,
+        y: 27,
+        start_quote: 183.435,
+        precision: 4,
+        chance_of_quote_change: 0.15,
+      },
+      {
+        id: 60,
+        y: 10,
+        start_quote: 1.08826,
+        precision: 6,
+        chance_of_quote_change: 0.2,
+      },
+      {
+        id: 61,
+        y: 5,
+        start_quote: 1.08826,
+        precision: 6,
+        chance_of_quote_change: 0.55,
+      },
+    ]
+
+    const form = document.getElementById('form')
+    const button = document.getElementById('button')
+    const table = document.getElementById('table')
+
+    const assetField = document.getElementById('asset')
+    const hashInput = document.getElementById('hash')
+    const quoteInput = document.getElementById('quote')
+    const amountInput = document.getElementById('amount')
+
+    function resolve_hash(hash) {
+      let result = hash.substring(0, 13)
+      result = parseInt(result, 16)
+      result = result / 4503599627370496
+      return result
+    }
+
+    form.addEventListener('submit', event => {
+      table.innerHTML = ''
+      button.setAttribute('disabled', 'disabled')
+
+      const config = assets.find(asset => asset.id === parseInt(assetField.value))
+
+      const y = config.y
+      const precision = config.precision
+      const chance = config.chance_of_quote_change
+      const startQuote = config.start_quote
+
+      let data = {}
+
+      let prevHash = null
+      let k = 0
+      for (let i = 0; i < amountInput.value * 2; i++) {
+        let hash = String(prevHash ? CryptoJS.SHA256(String(prevHash)) : hashInput.value)
+
+        if (!data.hasOwnProperty(k)) {
+          data[k] = {}
         }
 
-        form.addEventListener("submit", event => {
-            table.innerHTML = ""
-            button.setAttribute('disabled', 'disabled')
+        if (i % 2 === 0) {
+          // Even is quote offset
+          data[k].hash2 = hash
+          data[k].offset = Math.floor(resolve_hash(hash) * (y * 2 + 1))
+        } else {
+          // Odd is chance of quote change
+          data[k].hash1 = hash
+          data[k].chance = resolve_hash(hash)
+          k++
+        }
 
-            const config = assets.find(asset => asset.id === parseInt(assetField.value));
+        prevHash = hash
+      }
 
-            const y = config.y;
-            const precision = config.precision;
-            const chance = config.chance_of_quote_change;
-            const startQuote = config.start_quote;
+      let currentQuote = quoteInput.value
+      for (let i = 0; i < k; i++) {
+        let row = document.createElement('tr')
+        let c1 = document.createElement('td')
+        let c2 = document.createElement('td')
+        // c1.innerText = data[i].hash1 + ":" + data[i].chance + "\n" + data[i].hash2 + ":" + data[i].offset
+        const p1 = document.createElement('p')
+        p1.innerText = data[i].hash1
 
-            let data = {};
+        const p2 = document.createElement('p')
+        p2.innerText = data[i].hash2
 
-            let prevHash = null;
-            let k = 0;
-            for (let i = 0; i < amountInput.value * 2; i++) {
-                let hash = String(prevHash ? CryptoJS.SHA256(String(prevHash)) : hashInput.value);
+        c1.append(p1)
+        c1.append(p2)
+        c2.innerText = currentQuote
 
-                if (!data.hasOwnProperty(k)) {
-                    data[k] = {};
-                }
+        row.appendChild(c1)
+        row.appendChild(c2)
 
-                if (i % 2 === 0) {
-                    // Even is quote offset
-                    data[k].hash2 = hash
-                    data[k].offset = Math.floor(resolve_hash(hash) * (y * 2 + 1))
-                } else {
-                    // Odd is chance of quote change
-                    data[k].hash1 = hash
-                    data[k].chance = resolve_hash(hash)
-                    k++
-                }
+        table.appendChild(row)
 
-                prevHash = hash;
-            }
+        if (data[i].chance < chance) {
+          const delta = data[i].offset / Math.pow(10, precision - 1) - 2 * y / Math.pow(10, precision - 1) / 2
+          let calculatedQuote = Math.round((currentQuote - delta / 2) * Math.pow(10, precision)) /
+            Math.pow(10, precision)
+          if (calculatedQuote >= startQuote * 0.8 && calculatedQuote <= startQuote * 1.2) {
+            currentQuote = calculatedQuote
+          }
+        }
+      }
 
-            let currentQuote = quoteInput.value;
-            for (let i = 0; i < k; i++) {
-                let row = document.createElement("tr")
-                let c1 = document.createElement("td")
-                let c2 = document.createElement("td")
-                // c1.innerText = data[i].hash1 + ":" + data[i].chance + "\n" + data[i].hash2 + ":" + data[i].offset
-                c1.innerText = data[i].hash1 + "\n" + data[i].hash2
-                c2.innerText = currentQuote
+      table.parentElement.classList.add('--visible')
+      button.removeAttribute('disabled')
 
-                row.appendChild(c1)
-                row.appendChild(c2)
-
-                table.appendChild(row)
-
-                if (data[i].chance < chance) {
-                    const delta = data[i].offset / Math.pow(10, precision - 1) - 2 * y / Math.pow(10, precision - 1) / 2;
-                    let calculatedQuote = Math.round((currentQuote - delta / 2) * Math.pow(10, precision)) / Math.pow(10, precision);
-                    if (calculatedQuote >= startQuote * 0.8 && calculatedQuote <= startQuote * 1.2) {
-                        currentQuote = calculatedQuote;
-                    }
-                }
-            }
-
-            button.removeAttribute('disabled')
-
-            event.preventDefault();
-        });
-    </script>
+      event.preventDefault()
+    })
+  </script>
 </div>
 </body>
 </html>
