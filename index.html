@@ -317,6 +317,7 @@
       }
 
       let currentQuote = quoteInput.value
+      let prevQuote = quoteInput.value
       for (let i = 0; i < k; i++) {
         let row = document.createElement('tr')
         let c1 = document.createElement('td')
@@ -331,6 +332,7 @@
         c1.append(p1)
         c1.append(p2)
         c2.innerText = currentQuote
+        prevQuote = currentQuote
 
         row.appendChild(c1)
         row.appendChild(c2)
@@ -350,7 +352,7 @@
       table.parentElement.classList.add('--visible')
       button.removeAttribute('disabled')
 
-      quotes.open.innerText = currentQuote
+      quotes.open.innerText = prevQuote
       quotes.close.innerText = quoteInput.value
 
       event.preventDefault()
