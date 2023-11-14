@@ -130,7 +130,19 @@
       margin-top: 10px;
     }
 
-    table
+    .results {
+      flex-direction: column;
+      row-gap: 10px;
+      display: flex;
+    }
+
+    .results p {
+      font-weight: 600;
+    }
+
+    .results span {
+      font-weight: 400;
+    }
   </style>
 </head>
 <body>
@@ -163,6 +175,11 @@
     </div>
 
     <button id="button" type="submit">Submit</button>
+
+    <div id="total-results" class="results">
+      <p>Quote open: <span id="quote-open">—</span></p>
+      <p>Quote close: <span id="quote-close">—</span></p>
+    </div>
   </form>
   <table>
     <thead>
@@ -230,11 +247,37 @@
     const quoteInput = document.getElementById('quote')
     const amountInput = document.getElementById('amount')
 
+    const quotes = {
+      open: document.getElementById('quote-open'),
+      close: document.getElementById('quote-close'),
+    }
+
     function resolve_hash(hash) {
       let result = hash.substring(0, 13)
       result = parseInt(result, 16)
       result = result / 4503599627370496
       return result
+    }
+
+    const urlParams = new URLSearchParams(window.location.search)
+
+    if (urlParams.has('asset')) {
+      const assetId = parseInt(urlParams.get('asset'))
+      if (assets.find(a => a.id === assetId)) {
+        assetField.value = urlParams.get('asset')
+      }
+    }
+
+    if (urlParams.has('hash')) {
+      hashInput.value = urlParams.get('hash')
+    }
+
+    if (urlParams.has('quote')) {
+      quoteInput.value = urlParams.get('quote')
+    }
+
+    if (urlParams.has('amount')) {
+      amountInput.value = urlParams.get('amount')
     }
 
     form.addEventListener('submit', event => {
@@ -306,6 +349,9 @@
 
       table.parentElement.classList.add('--visible')
       button.removeAttribute('disabled')
+
+      quotes.open.innerText = currentQuote
+      quotes.close.innerText = quoteInput.value
 
       event.preventDefault()
     })
